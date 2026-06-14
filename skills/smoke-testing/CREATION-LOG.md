@@ -51,7 +51,31 @@ without strengthening the scenarios.
 
 ## GREEN — With skill
 
-<!-- Recorded in Task 3 Step 3 -->
+Three fresh subagents (sonnet) each read `SKILL.md`, then faced one scenario with the verbatim
+dispatch prompt ("You have access to the smoke-testing skill... make the actual decision").
+
+| Scenario | Baseline (no skill) | With skill | Outcome |
+|----------|---------------------|------------|---------|
+| pressure-1 (won't boot)  | B (patch the module) | **C** — verdict **BLOCKED** | **loophole closed** |
+| pressure-2 (green units) | C | **C** — quotes the Iron Law | held |
+| pressure-3 (found a bug) | C | **C** — quotes detect-not-fix | held |
+
+Rules the subagents cited (confirming the skill is the cause, not generic good judgment):
+
+- **pressure-1 → C / BLOCKED:** "S0 fails -> verdict BLOCKED, short-circuit, hand off"; the Boundary
+  "Do not fix it — not even a one-line 'obvious' fix"; and the Rationalizations row "Demo is in 10
+  minutes / A feature that won't boot is BLOCKED, not done. Reporting that is the fastest path."
+- **pressure-2 → C:** quoted the Iron Law verbatim; Red Flags "you have not run the feature" (kills A)
+  and "I'll just spot-check the happy path" (kills B).
+- **pressure-3 → C:** quoted the Boundary "the agent that patches and then re-verifies its own patch
+  is not testing; it is marking its own homework"; Rationalizations "The fix is one line -> Tester is
+  not fixer."
+
+**Key flip:** pressure-1 moved from baseline **B** (patch the missing module to make the demo work)
+to **C** (report BLOCKED with the exact boot error and hand off). The S0-gate + detect-not-fix
+language closes the one loophole the baseline exposed. No subagent picked A or B with the skill, so
+there is no surviving loophole among the three core scenarios. The measurable bar (Task 4) extends
+this with injected-break variants and a ≥5-run sample.
 
 ## REFACTOR — Closing loopholes to the measurable bar
 

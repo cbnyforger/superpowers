@@ -9,6 +9,38 @@ REFACTOR (close loopholes until a measurable bar is met).
 - Design spec (v2.1): `docs/superpowers/specs/2026-06-14-smoke-testing-skill-design.md`
 - Implementation plan: `docs/superpowers/plans/2026-06-14-smoke-testing-skill-implementation.md`
 
+## Extraction Decisions
+
+What was distilled from the v2.1 spec into behavior-shaping content:
+
+- Core principle ("you only know your mocks agree with each other") → **Overview**.
+- Broad-and-shallow scope, every capability once, happy + one high-value failure path → **Iron Law**
+  + **Negative Taxonomy**.
+- Detect-not-fix positioning → **Boundary: Detect & Report, Never Fix** (reinforced in Red Flags +
+  Rationalizations).
+- 8-step workflow with S0 first → **Workflow** (graphviz flowchart + steps).
+- Four-source coverage (spec / plan / git diff / memory) → **Step 3** + template coverage map.
+- Four-state verdict, raw-evidence/derived-status, Prerequisite cascade → dedicated sections +
+  template columns.
+- Neighbor boundaries (TDD, code-review, verification-before-completion, systematic-debugging) →
+  **When to Use / Not for** + the Step 8 handoff contract.
+
+## Bulletproofing Elements
+
+- **Iron Law** — no "it works" claim until S0 passes and every scope item is run live with raw
+  observed evidence (happy + one failure path).
+- **S0 boot gate** — mandatory first; short-circuits to BLOCKED on failure.
+- **Evidence Discipline (anti-gaming)** — `Actual` = raw quoted output; `Status` derived from a
+  literal match; fabrication forbidden; cannot-observe → BLOCKED/FAIL, never a guessed PASS.
+- **Detect & Report, Never Fix** — codebase is read-only; not even a one-line "obvious" fix.
+- **Prerequisite → BLOCKED cascade** — stops dependent checks being miscounted as defects.
+- **SPEC-MISMATCH → PENDING-HUMAN** — stops false FAILs when the spec is stale and the code is right.
+- **Memory-status declaration** — coverage honesty is explicit (`consulted` / `unavailable`).
+- **Secrets/PII redaction** rule on the report and evidence.
+- **Chrome DevTools MCP default; unavailable → BLOCKED, never fall back to Playwright.**
+- **Rationalizations table** naming the exact excuses the baseline used ("the fix is one line",
+  "demo is in 10 minutes", "it's a trivial change").
+
 ## RED — Baseline (no skill)
 
 Each scenario was given to a fresh subagent with ONLY the scenario text and no access to the
@@ -109,6 +141,47 @@ Against the plan's bar:
 
 No `SKILL.md` changes were required; the skill meets the measurable bar as authored.
 
+## Academic comprehension test
+
+A fresh subagent (sonnet) read `SKILL.md` and answered all 7 questions in `test-academic.md` SOLELY
+from the skill, with accurate direct quotes: S0 → BLOCKED on failure; the four verdict states and
+their semantics; `Actual` = raw quoted output with `Status` derived from a literal match; the four
+coverage sources (spec, plan, git diff, memory); defect-found → record-and-hand-off, never fix;
+Chrome DevTools MCP default with BLOCKED-if-unavailable and no Playwright fallback; exactly one
+high-value negative per scope item chosen from the taxonomy. No wrong or ambiguous answers — the
+skill is unambiguous; no edits were required.
+
+## Structural review against the spec
+
+Every row of the spec's §15 "Decisions Locked (v2.1)" table maps to concrete `SKILL.md` /
+`checklist-template.md` content: boot gate (Step 0 + template S0 row), S0 timing (Step 0 / Step 5),
+four verdicts (Four-State Verdict), raw-evidence `Actual` + derived `Status` (Evidence Discipline +
+template column), Prerequisite/BLOCKED (Step 6 + template column), test-data lifecycle (Test Data
+bullet + footer), SPEC-MISMATCH (its own section), memory status (Step 3 + coverage map), secrets/PII
+(bullet + Red Flags + footer), Chrome DevTools default / no Playwright (Live-UI bullet), incremental
+write + subagent breadth (Step 6), negative taxonomy (table), measurable bar (this log's REFACTOR),
+proportionality (Step 3 + Rationalizations), env-setup-vs-code-fix (Boundary), VBC handshake
+(Step 8), Approach-B shape (as built). No gaps found.
+
 ## Final Outcome
 
-<!-- Recorded in Task 5 -->
+- **Tests have teeth, loophole closed:** the skill-naive baseline rationalized a one-line "obvious"
+  fix on the won't-boot scenario (chose B); with the skill, the same scenario flips to C / BLOCKED.
+- **Measurable bar met:** 5/5 completed bar runs were exactly correct (the 6th was aborted by a cost
+  hook injected into the subagent, not a skill miss); ≥90% break-catch; never a false PASS when S0 or
+  a critical check fails with evidence; correct BLOCKED + Prerequisite cascade with no defect
+  over-counting; memory status declared; SPEC-MISMATCH adjudicated to PENDING-HUMAN, not auto-FAIL.
+- **Academic + structural reviews pass** (above).
+- **Deliverables:** `SKILL.md`, `checklist-template.md`, `test-academic.md`, `test-pressure-1..3.md`,
+  and this log.
+
+## Key Insight
+
+The highest-leverage rule was making *"you found a bug"* a **reporting** action, not a **fixing**
+action. A capable model already resists shipping on green unit tests (it chose C unprompted on
+pressure-2 and pressure-3), but it will still rationalize a "one-line obvious fix" (pressure-1
+baseline chose B) — so the detect-not-fix boundary, repeated across the Boundary section, Red Flags,
+and Rationalizations, is what actually changes behavior under pressure. The second-most-important
+element was the **Prerequisite → BLOCKED** cascade: without it, one broken login becomes three
+"defects" and the report misrepresents the blast radius. Both were the elements an LLM most wanted to
+shortcut, and both are now over-specified on purpose.

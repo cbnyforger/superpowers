@@ -198,3 +198,25 @@ scope item (A = SKILL.md shape, B = template structure, C = dev test artifacts),
 flag (the bootstrap auto-trigger is not exercisable in-session). Execution then **stopped at the
 Step-5 human-review gate** — S1–S5 left `PENDING-HUMAN`, no verdict computed — exactly as the skill
 mandates. The dogfood confirms the skill produces the correct artifact shape and honors its hard stop.
+
+## Final review (independent) and response
+
+A fresh reviewer subagent reviewed the complete skill against the spec §15 Decisions-Locked table,
+internal consistency, superpowers house style, and the contributor/PR rules in CLAUDE.md.
+
+- **No Blockers.** Internal consistency clean — Status values, four verdicts, column names, the
+  Chrome-DevTools/no-Playwright rule, and the detect-not-fix boundary all agree across `SKILL.md` and
+  `checklist-template.md`.
+- **Applied:** house-style vocabulary ("your human partner"); spec §9 guardrails embedded in the
+  workflow — self-count of scope items (Step 2) and self-critique after drafting (Step 4); and the
+  spec §10 re-run versioning note (`...-smoke-test-vN.md`, fresh evidence required for PASS) in Step 7.
+  None of these touch the eval-tested discipline (S0 / detect-not-fix / Prerequisite cascade /
+  SPEC-MISMATCH), so the GREEN and measurable-bar results stand unchanged.
+- **Deferred to PR-prep (human decision):** naming `chrome-devtools-mcp` explicitly (and banning
+  Playwright by name) could read to upstream maintainers as promoting a third-party project — a
+  documented rejection criterion. It is preserved as-is per the explicit instruction to default to
+  Chrome DevTools MCP and never Playwright; whether to reframe it tool-agnostically for an upstream PR
+  is a decision to make at PR time.
+- **Dismissed:** the reviewer believed the colocated test artifacts were missing — they are present
+  and committed (`test-academic.md`, `test-pressure-1..3.md`, and this log); the reviewer simply had
+  not listed the skill directory.

@@ -59,21 +59,21 @@ digraph smoke {
 }
 ```
 
-**Step 0 — S0 boot gate (mandatory first; may run pre-approval).** Discover and document how to build/serve/login (this fills the Environment block). Run the minimal build/serve commands. Capture evidence the app starts with no critical errors. Booting is non-destructive, so S0 may run before human approval; all other checks wait for it. **S0 fails -> verdict BLOCKED, short-circuit, hand off.** "Couldn't establish a runnable environment" -> BLOCKED. "Ran and behaved wrong" -> FAIL.
+**Step 0 — S0 boot gate (mandatory first; may run pre-approval).** Discover and document how to build/serve/login (this fills the Environment block). Run the minimal build/serve commands. Capture evidence the app starts with no critical errors. Booting is non-destructive, so S0 may run before your human partner approves; all other checks wait for it. **S0 fails -> verdict BLOCKED, short-circuit, hand off.** "Couldn't establish a runnable environment" -> BLOCKED. "Ran and behaved wrong" -> FAIL.
 
 **Step 1 — Locate inputs.** Find the feature's spec and plan. Absent or stale -> fall back to `git diff` and warn that coverage is best-effort. Staleness signal: the diff touches surfaces the spec/plan never mention.
 
-**Step 2 — Extract scope items.** Enumerate every built capability from spec requirement sections + plan Task headers (and any distinct user-facing sub-behavior). Tag each with its trace (e.g. `spec section 3`, `plan Task 4`).
+**Step 2 — Extract scope items.** Enumerate every built capability from spec requirement sections + plan Task headers (and any distinct user-facing sub-behavior). Tag each with its trace (e.g. `spec section 3`, `plan Task 4`). Then self-count: state how many scope items you extracted and reconcile that count against the spec/plan headers before drafting — a dropped capability is a silent coverage hole.
 
 **Step 3 — Coverage cross-check (four sources).** Map every scope item to >=1 check, and reconcile against **spec, plan, git diff, and memory** (past regressions, known-fragile areas, deferred items, prior smoke reports — via whatever memory mechanism is available). Declare memory status in the coverage map: `memory: consulted` or `memory: unavailable`. Flag anything changed-but-unchecked or memory-flagged-but-unchecked as `UNCOVERED`/`RISK`. Split **Core** (must-run) vs **Extended**. **Proportionality:** breadth scales to the diff's blast radius — a one-line change gets S0 + the surfaces it touches, not a 60-check sweep.
 
-**Step 4 — Draft the checklist.** Instantiate checklist-template.md into `docs/superpowers/smoke-tests/YYYY-MM-DD-<feature-slug>-smoke-test.md`. For each scope item: one happy path + one high-value negative (see Negative taxonomy), each with concrete steps and an **expected observable result**.
+**Step 4 — Draft the checklist.** Instantiate checklist-template.md into `docs/superpowers/smoke-tests/YYYY-MM-DD-<feature-slug>-smoke-test.md`. For each scope item: one happy path + one high-value negative (see Negative taxonomy), each with concrete steps and an **expected observable result**. After drafting, self-critique before the gate: look for coverage gaps, weak/low-value negatives, and negatives that could themselves trip SPEC-MISMATCH; revise.
 
-**Step 5 — Human review gate (HARD STOP).** Present the drafted checklist. The human edits, re-prioritizes Core/Extended, approves. Execute nothing beyond S0 before approval. In fully unattended/orchestration mode, proceed automatically.
+**Step 5 — Human review gate (HARD STOP).** Present the drafted checklist to your human partner, who edits, re-prioritizes Core/Extended, and approves. Execute nothing beyond S0 before approval. In fully unattended/orchestration mode, proceed automatically.
 
 **Step 6 — Execute live.** Run S0 -> Core -> Extended. For each check, put **raw quoted evidence** in the Actual column and derive Status from a literal match. Use the Prerequisite column so an upstream failure cascades dependents to **BLOCKED** (not FAIL). Write the report file incrementally after each check/group (survives compaction). For 30+ scope items, you may dispatch execution breadth to a subagent while you maintain the report.
 
-**Step 7 — Report.** Compute the four-state verdict, populate Defects (true FAIL only), append the JSON summary.
+**Step 7 — Report.** Compute the four-state verdict, populate Defects (true FAIL only), append the JSON summary. Re-runs after fixes get a new versioned file (`...-smoke-test-vN.md`); a PASS always requires fresh evidence from the current build, never a prior run's.
 
 **Step 8 — Hand off.** BLOCKED/FAIL -> hand the report to superpowers:systematic-debugging (or back to the caller); no fixes. PASS/PASS-WITH-GAPS -> hand to superpowers:verification-before-completion. The report path + verdict is the contract.
 

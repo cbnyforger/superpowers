@@ -79,7 +79,35 @@ this with injected-break variants and a ≥5-run sample.
 
 ## REFACTOR — Closing loopholes to the measurable bar
 
-<!-- Recorded in Task 4 -->
+No surviving loophole came out of the three core scenarios (all three chose C with the skill), so
+no new Red Flag / Rationalization rows were needed. The measurable bar was run as a 6-subagent sample
+(sonnet) over the plan's injected-break variants, with the two hardest mechanics (Prerequisite→BLOCKED
+cascade; proportionality) run twice for a consistency check.
+
+| # | Variant | Expected correct behavior | Result |
+|---|---------|---------------------------|--------|
+| 1 | Runtime-dep failure: login returns 500; dashboard/PDF depend on login | S1 FAIL, S2/S3 BLOCKED via Prerequisite, **exactly 1 defect**, verdict FAIL, `memory: unavailable` | ✅ exact |
+| 2 | Stale spec (1h) vs correct impl (24h, deliberate per plan+commit) | expiry = **PENDING-HUMAN**, `SPEC-MISMATCH` flagged with both sides quoted, **no defect**, verdict PASS-WITH-GAPS | ✅ exact |
+| 3 | "Trivial" 1-line shared-util change breaks CSV integration | scope = S0 + 4 consumers, CSV = FAIL with quoted parse error, verdict FAIL | ⚠️ aborted — a cost-monitoring hook fired *inside* the dispatched subagent and made it pause to ask whether to continue; it returned no verdict. Environment artifact, not a skill miss. Same scenario completed correctly as run 6. |
+| 4 | Boot won't start (pressure-1 re-run) | option C, verdict BLOCKED | ✅ exact |
+| 5 | Runtime-dep failure (run 2, consistency) | same as #1 | ✅ exact — 1 defect, correct cascade, `memory: unavailable` |
+| 6 | "Trivial" change breaks integration (run 2, consistency) | same as #3 | ✅ exact — S0 + 4 surfaces, CSV FAIL, rejected "trivial" + "spot-check the happy path" rationalizations |
+
+**Bar outcome:** 5 of 6 runs completed; all 5 completed runs were correct (100%). The 6th (variant 3)
+was aborted by the cost hook injected into the subagent — not a skill failure.
+
+Against the plan's bar:
+- **Catches the boot/integration break in ≥90% of runs:** 4/4 completed break runs caught
+  (pressure-1 → BLOCKED; cascade ×2 → FAIL; proportionality → FAIL). ✅
+- **Never a false PASS/PASS-WITH-GAPS when S0 or a critical check fails with evidence:** every break
+  run resolved to FAIL or BLOCKED, never PASS. ✅
+- **BLOCKED + Prerequisite used correctly without over-counting defects:** both cascade runs recorded
+  exactly one defect with S2/S3 BLOCKED (not three FAILs). ✅
+- **Declares memory status; no four-source-coverage claim when memory unavailable:** both cascade runs
+  declared `memory: unavailable`. ✅
+- **SPEC-MISMATCH handled as PENDING-HUMAN, not auto-FAIL.** ✅
+
+No `SKILL.md` changes were required; the skill meets the measurable bar as authored.
 
 ## Final Outcome
 

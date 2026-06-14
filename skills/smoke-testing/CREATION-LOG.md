@@ -185,3 +185,16 @@ and Rationalizations, is what actually changes behavior under pressure. The seco
 element was the **Prerequisite → BLOCKED** cascade: without it, one broken login becomes three
 "defects" and the report misrepresents the blast radius. Both were the elements an LLM most wanted to
 shortcut, and both are now over-specified on purpose.
+
+## Dogfood
+
+The skill was exercised end-to-end against its own freshly-built deliverables (the smoke-testing
+skill itself as the "assembled thing"). Following the skill's workflow: **S0** (install + frontmatter
+parse) ran pre-approval with real quoted evidence and **PASSED** — `SKILL.md` + `checklist-template.md`
+present in `~/.claude/skills/smoke-testing/`; `frontmatter chars: 312`, `<= 1024`. Steps 1–4 produced
+a drafted checklist at `docs/superpowers/smoke-tests/2026-06-14-smoke-testing-skill-smoke-test.md`
+with: an S0 row, a coverage map declaring `memory: consulted`, one happy + one negative check per
+scope item (A = SKILL.md shape, B = template structure, C = dev test artifacts), and an UNCOVERED/RISK
+flag (the bootstrap auto-trigger is not exercisable in-session). Execution then **stopped at the
+Step-5 human-review gate** — S1–S5 left `PENDING-HUMAN`, no verdict computed — exactly as the skill
+mandates. The dogfood confirms the skill produces the correct artifact shape and honors its hard stop.

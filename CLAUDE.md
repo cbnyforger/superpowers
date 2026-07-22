@@ -1,5 +1,23 @@
 # Superpowers — Contributor Guidelines
 
+## Fork Maintenance
+
+This repository is a fork of [obra/superpowers](https://github.com/obra/superpowers), extended with our own additions (notably the `smoke-testing` skill). Our own work lives on `main`; the upstream project is tracked through the `upstream` remote.
+
+**From time to time, fetch updates from the upstream project** so our fork doesn't drift too far behind. Fetching is non-destructive — it only updates remote-tracking branches and never touches your working tree or local branches.
+
+```bash
+# One-time setup (already configured in this clone):
+git remote add upstream https://github.com/obra/superpowers.git
+
+# Periodic sync:
+git fetch upstream
+git log --oneline main..upstream/main   # what's new upstream
+git log --oneline upstream/main..main   # our fork-specific commits
+```
+
+Review the incoming commits before integrating anything. When you do want to bring changes in, merge or cherry-pick from `upstream/main` onto our `main` — and keep our fork-specific additions (the `smoke-testing` skill, this section) intact. Do **not** push our fork-specific changes back to obra/superpowers; the upstream project explicitly rejects fork-sync PRs (see "Fork-specific changes" below).
+
 ## If You Are an AI Agent
 
 Stop. Read this section before doing anything.

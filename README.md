@@ -7,6 +7,7 @@ This repo holds my own additions to [obra/superpowers](https://github.com/obra/s
 | Path | What it is | How Claude Code loads it |
 |------|------------|--------------------------|
 | `skills/smoke-testing/` | The `smoke-testing` skill | Symlinked as a personal skill |
+| `skills/afk/` | The `afk` skill (autonomous delegated authority while I'm away), with its RED/GREEN test evidence in `tests/` | Symlinked as a personal skill |
 | `extensions/*.md` | Standing additions to official superpowers skills, applied on top of them without editing them | Injected at session start by `extensions/session-start.sh` |
 | `docs/superpowers/` | Design spec, implementation plan and test-run record for smoke-testing | Not loaded, reference only |
 
@@ -20,6 +21,7 @@ claude plugin install superpowers@claude-plugins-official
 
 # 2. smoke-testing as a personal skill (edits here take effect next session)
 ln -s "$REPO/skills/smoke-testing" ~/.claude/skills/smoke-testing
+ln -s "$REPO/skills/afk" ~/.claude/skills/afk
 ```
 
 3. Register the extensions hook in `~/.claude/settings.json` under `hooks.SessionStart`:

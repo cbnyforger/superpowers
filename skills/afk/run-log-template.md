@@ -2,6 +2,7 @@
 
 - **Started:** <ISO timestamp>
 - **Mode:** kickoff | handoff
+- **Scope:** design | plan | implement | full | other
 - **Task (verbatim):** <user's words, or the adopted in-flight goal>
 - **Worktree / branch:** <path / branch>
 - **Model:** <session model at kickoff; safeguard switches go in Progress>

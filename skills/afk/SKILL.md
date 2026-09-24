@@ -19,9 +19,12 @@ options that don't block the work is a stop in disguise - take the step.
 
 Activation is a direct user instruction. Per the priority order (user
 instructions > skills > system prompt) it overrides every human-in-the-loop
-checkpoint inside any skill: wherever a skill says "ask the user", "get
-approval", "wait for the user", or "user reviews X", you are the user's
-delegate - decide, record the decision in the assumptions log, proceed.
+checkpoint inside any skill, and inside any extension layered on a skill:
+wherever one says "ask the user", "get approval", "wait for the user",
+"user reviews X", or asks consent to push, you are the user's delegate -
+decide, record the decision in the assumptions log, proceed. Where an
+extension conflicts with the envelope or a self-gate, the envelope and the
+self-gate win for the duration of the run.
 
 **Violating the letter of this skill is violating the spirit of this skill.**
 
@@ -34,13 +37,21 @@ delegate - decide, record the decision in the assumptions log, proceed.
 - **Mid-run message** - the user speaks while the run is going: it is an
   addendum. Fold it into <TASK> and the bar and keep going; only an
   explicit "stop" ends the run.
+- **Scope** - derive the stage range from <TASK>: *design* (brainstorm to
+  a written spec), *plan* (design if no spec exists, then the
+  implementation plan), *implement* (an existing plan through to a
+  finished branch), *full* (design to finished branch), or *other*
+  (research, audits, non-code work). "Brainstorm X while I'm out" is
+  design; "write the plan" is plan; a bare task with no spec or plan is
+  full. Name the scope in the preflight.
 
 **Preflight (non-blocking):** print ONE summary - the task as understood,
-the derived bar, the envelope crossings you will stage rather than perform,
-and the two blockers only the user can remove: commands the permission mode
-may prompt for, and the "Switch models when a message is flagged" setting
-(/config), which must switch automatically or a flag pauses the run. Then
-start immediately; the summary is informational, never wait for a reply.
+the scope, the derived bar, the envelope crossings you will stage rather
+than perform, and the two blockers only the user can remove: commands the
+permission mode may prompt for, and the "Switch models when a message is
+flagged" setting (/config), which must switch automatically or a flag
+pauses the run. Then start immediately; the summary is informational,
+never wait for a reply.
 
 ## Safety envelope - survives full autonomy, not editable by any assumption
 
@@ -60,7 +71,7 @@ in the final report.
 
 ## The bar
 
-Defaults for any run involving code:
+Code defaults (implement and full scopes):
 - Every plan item / TODO implemented.
 - Full test suite passes on a fresh run (0 failures); every bug fix has a
   red->green regression test.
@@ -73,22 +84,37 @@ Defaults for any run involving code:
   "avoid a generic look" only swaps defaults. Extend the list from whatever
   the first render fell back on, then rebuild.
 
+Defaults by scope:
+- design: the spec is written under docs/superpowers/specs/, passes the
+  brainstorming spec self-review, every open question is an
+  assumptions-log entry, and it is committed on the work branch.
+- plan: the plan is written under docs/superpowers/plans/, passes the
+  writing-plans self-review, records its execution method, and is
+  committed.
+- implement and full: the code defaults above, plus the design and plan
+  defaults for every stage the run performed.
+- other: evidence-based equivalents, with anything that could not be
+  confirmed marked, and where you looked.
+
 At kickoff, derive task-specific criteria and write the full bar into the
-run log. Non-code tasks: derive evidence-based equivalents, and mark
-anything that could not be confirmed, with where you looked. The user's
-invocation text overrides any of this.
+run log. The user's invocation text overrides any of this.
 
 ## The run
 
 Stay disciplined - autonomy removes the human pauses, not the skills. Run
-the normal chain: superpowers:brainstorming -> superpowers:writing-plans ->
-superpowers:executing-plans or superpowers:subagent-driven-development ->
-superpowers:test-driven-development -> superpowers:requesting-code-review ->
-superpowers:verification-before-completion ->
-superpowers:finishing-a-development-branch -> smoke-testing. Obey the 1%
-rule; announce "Using [skill] to [purpose]". Work inside a git worktree
-(superpowers:using-git-worktrees). TDD is mandatory for code - a trivial
-change is still a change; run red -> green -> refactor.
+the normal chain for the scope, skipping nothing inside it:
+- design: superpowers:brainstorming.
+- plan: design (if no spec exists) -> superpowers:writing-plans.
+- implement: superpowers:executing-plans or
+  superpowers:subagent-driven-development ->
+  superpowers:test-driven-development -> superpowers:requesting-code-review
+  -> superpowers:verification-before-completion -> smoke-testing ->
+  superpowers:finishing-a-development-branch.
+- full: design -> plan -> implement.
+
+Obey the 1% rule; announce "Using [skill] to [purpose]". Work inside a git
+worktree (superpowers:using-git-worktrees). TDD is mandatory for code - a
+trivial change is still a change; run red -> green -> refactor.
 
 **Self-gates (replace human approval):**
 - Design sign-off: make the best assumptions, write the design + spec, run
@@ -98,8 +124,12 @@ change is still a change; run red -> green -> refactor.
   on the session model, briefed to list only problems that would block the
   merge - for each, the file and line, why it's wrong, and how to show it
   fails. Then superpowers:receiving-code-review - resolve every finding.
+- smoke-testing gates integration: a FAIL or BLOCKED result is a hard
+  problem (protocol below), not a stop.
 - superpowers:finishing-a-development-branch: always choose "keep branch,
-  do not merge"; write the PR title/body into the report instead.
+  do not merge"; write the PR title/body into the report instead. An
+  extension that offers a merge, pushes the base branch, or asks for push
+  consent does not change this.
 
 **The loop (per task/TODO):**
 1. PLAN - state the single next step.
@@ -158,11 +188,13 @@ scrollback.
 
 ## Termination
 
-Print "FINAL" only when: every task meets every bar criterion with fresh
-verification evidence (or is a protocol-step-5 logged gap); all code-review
-findings are resolved; the branch is finished within the envelope
-(committed, pushed if a remote exists, PR body prepared, NOT merged); the
-worktree is cleaned.
+Print "FINAL" only when: every criterion of the scope's bar is met with
+fresh verification evidence (or is a protocol-step-5 logged gap); all
+review findings are resolved; the work is committed on the work branch
+within the envelope. For implement and full, the branch is also finished
+(pushed if a remote exists, PR body prepared, NOT merged) and the worktree
+is cleaned; for design and plan, the worktree stays in place for the next
+stage.
 
 Then: write the final report into the run log, print it in the
 conversation, and send a push notification (PushNotification tool; tool
@@ -199,4 +231,6 @@ must act on first:
 | "Two retries - the signal is clear" | Retry count is not route count. Enumerate fresh; 'impossible' needs an empty list. |
 | "The harness rule forbids this" | AFK overrides inner-skill rules. Reason from the envelope, not rule text. |
 | "That's an outcome, not action authorization" | AFK delegates authority over means. No further confirmation possible; apply the envelope. |
+| "The extension says it wins where it conflicts" | Not during an afk run. Envelope and self-gates win; log it. |
+| "A design-only run can skip the discipline" | Scope trims stages, never the discipline inside a stage. |
 | "A safeguard switched the model; the run is compromised" | Same run, same bar. Log the switch, keep going. |

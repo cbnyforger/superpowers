@@ -120,10 +120,13 @@ trivial change is still a change; run red -> green -> refactor.
 - Design sign-off: make the best assumptions, write the design + spec, run
   the spec self-review, approve it yourself against the bar. Log assumptions.
 - Spec / plan "user review": self-review, then proceed.
-- Code review: superpowers:requesting-code-review with a SUBAGENT reviewer
-  on the session model, briefed to list only problems that would block the
-  merge - for each, the file and line, why it's wrong, and how to show it
-  fails. Then superpowers:receiving-code-review - resolve every finding.
+- Code review: the executing skill's task and final reviews are the gate;
+  resolve every Critical/Important finding, and log each Minor or parked
+  one. No review built in -> superpowers:requesting-code-review with a
+  SUBAGENT reviewer, then superpowers:receiving-code-review.
+- The executing skills' "stop and ask" cases: an envelope crossing -> stage
+  it and report; a plan where every path is a guess -> hard-problem
+  protocol.
 - smoke-testing gates integration: a FAIL or BLOCKED result is a hard
   problem (protocol below), not a stop.
 - superpowers:finishing-a-development-branch: always choose "keep branch,
@@ -144,17 +147,16 @@ trivial change is still a change; run red -> green -> refactor.
 
 **Assumptions log:** every would-have-asked moment becomes a run-log entry:
 [assumption / rationale / how to reverse]. Prefer reversible choices so a
-wrong assumption is cheap to undo.
+wrong assumption is cheap to undo. The executing skills' ledger Rulings
+are entries too - mirror them in.
 
-**Subagents:** default workers to the latest Sonnet model; use the session
-model for review and other judgment-heavy steps, and when a Sonnet attempt
-fails. For an audit, migration, or review across many units, fan out: one
-subagent per unit, check each result's evidence before accepting it, and
-consolidate into one table in the run log (unit, outcome, evidence). Brief
-subagents for evidence and conclusions, not their reasoning transcript.
-Keep fix-batches small (2-3 changes each) or apply them yourself - large
-multi-file batches stall the no-progress watchdog. Salvage a stalled agent
-via git status / git diff: keep good partial work, finish directly.
+**Subagents:** plan execution uses its skill's model selection and fix
+loop. Other fan-out (audit, migration, review across many units): one
+subagent per unit on the latest Sonnet (session model for judgment-heavy
+units or a failed Sonnet attempt), briefed for evidence and conclusions;
+check each result's evidence, consolidate into one run-log table (unit,
+outcome, evidence). Keep batches to 2-3 changes - larger ones stall the
+no-progress watchdog; salvage a stalled agent via git status / git diff.
 
 **Safeguard flag mid-run:** safety classifiers can flag a message; the
 session then switches to an older model and the run continues there. Log
